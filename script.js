@@ -23,6 +23,23 @@ const onSubmitAddItem = (e) => {
         alert('Please add an item')
         return
     }
+    // check to see if value is already submitted 
+    if (checkDuplicates(newItem) === false) {
+        alert('Item already exists')
+        itemInput.value = ''
+        return 
+    }
+    
+    // check if we're in edit mode 
+    if(isEditMode) {
+        const formerObj = document.querySelector('.edit-mode')
+        removeItemFromStorage(formerObj.textContent)
+        formerObj.classList.remove('edit-mode')
+        formerObj.remove()
+        isEditMode = false;
+        formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item'
+        formBtn.style.backgroundColor = '#333'
+    }
     // add item to the DOM
     addItemtoDOM(newItem)
     // add item to local storage 
@@ -30,6 +47,15 @@ const onSubmitAddItem = (e) => {
     isEmptyList()
     itemInput.value = ''
 }
+
+function checkDuplicates(newItem) {
+    existingItems = getItemsFromStorage()
+    for (const item in existingItems) {
+        if (existingItems[item] === newItem) {
+            return false 
+        }
+    }
+    }
 
 function addItemtoDOM(item) {
     // adding the li to the DOM
@@ -75,29 +101,26 @@ function getItemsFromStorage() {
         itemsFromStorage = JSON.parse(localStorage.getItem('items')) 
     }
     return itemsFromStorage
-
 }
 
 const onClickListItem = ((e) => {
     if (e.target.tagName === 'I') {
         removeItem(e.target.parentElement.parentElement)
+    } else if (e.target.tagName === 'LI'){
+        setItemToEdit(e.target)
     }
 })
-//     } else {
-//         setItemToEdit(e.target)
-//     }
-// })
 
-// function setItemToEdit(item) {
-//     isEditMode = true
-//     // turn 
-//     itemList.querySelectorAll('li').forEach(i => i.classList.remove('edit-mode'))
+function setItemToEdit(item) {
+    isEditMode = true
+    // turn off edit mode for all buttons until to avoid edit-mode existing for multiple elements at the same time
+    itemList.querySelectorAll('li').forEach(i => i.classList.remove('edit-mode'))
 
-//     item.classList.add('edit-mode')
-//     formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item'
-//     formBtn.style.backgroundColor = '#228b22'
-//     itemInput.value = item.textContent
-// }
+    item.classList.add('edit-mode')
+    formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item'
+    formBtn.style.backgroundColor = '#228b22'
+    itemInput.value = item.textContent
+}
 
 const removeItem = ((item) => {
         // remove item from DOM 
