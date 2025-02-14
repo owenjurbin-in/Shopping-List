@@ -1,7 +1,9 @@
 const itemForm = document.getElementById('item-form')
 const itemInput = document.getElementById('item-input')
 const itemList = document.getElementById('item-list')
-const ClearBtn = document.getElementById('clear')
+const clearBtn = document.getElementById('clear')
+const filter = document.getElementById('filter')
+const items = itemList.querySelectorAll('li')
 
 const addItem = (e) => {
     e.preventDefault()
@@ -23,8 +25,10 @@ const addItem = (e) => {
 
     button.appendChild(icon)
     li.appendChild(button)
-    // document.querySelector('ul').appendChild(li)
+
+    // Adding an li to the DOM
     itemList.appendChild(li)
+    isEmptyList()
     itemInput.value = ''
 }
 
@@ -42,7 +46,7 @@ function createIcon(classes) {
 
 function removeItem(e) {
     if (e.target.tagName === 'I') {
-        e.target.parentElement.parentElement.remove()
+            e.target.parentElement.parentElement.remove()
     }
 }
 
@@ -52,7 +56,23 @@ function clearList() {
     }
 }
 
+function isEmptyList() {
+    const items = itemList.querySelectorAll('li')
+    if (items.length === 0) {
+        filter.style.display = 'none'
+        clearBtn.style.display = 'none'
+    } else {
+        filter.style.display = 'block'
+        clearBtn.style.display = 'block'
+    }
+}
+
 // Event Listeners
 itemForm.addEventListener('submit', addItem)
 itemList.addEventListener('click', removeItem)
-ClearBtn.addEventListener('click', clearList)
+itemList.addEventListener('click', isEmptyList)
+clearBtn.addEventListener('click', clearList)
+clearBtn.addEventListener('click', isEmptyList)
+
+
+isEmptyList()
