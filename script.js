@@ -4,8 +4,16 @@ const itemList = document.getElementById('item-list')
 const clearBtn = document.getElementById('clear')
 const filter = document.getElementById('filter')
 const items = itemList.querySelectorAll('li')
+const formBtn = itemForm.querySelector('button')
+let isEditMode = false 
 
-const addItem = (e) => {
+const displayItems = () => {
+    const itemsFromStorage = getItemsFromStorage()
+    itemsFromStorage.forEach(item =>  addItemtoDOM(item))
+}
+
+
+const onSubmitAddItem = (e) => {
     e.preventDefault()
 
     const newItem = itemInput.value
@@ -15,21 +23,27 @@ const addItem = (e) => {
         alert('Please add an item')
         return
     }
-    // Create list item 
+    // add item to the DOM
+    addItemtoDOM(newItem)
+    // add item to local storage 
+    addItemToStorage(newItem)
+    isEmptyList()
+    itemInput.value = ''
+}
+
+function addItemtoDOM(item) {
+    // adding the li to the DOM
     const li = document.createElement('li')
     li.className = 'item'
-    li.appendChild(document.createTextNode(newItem))
+    li.appendChild(document.createTextNode(item))
 
     const button = createButton('remove-item btn-link text-red')
     const icon = createIcon('fa-solid fa-xmark')
-
     button.appendChild(icon)
     li.appendChild(button)
 
     // Adding an li to the DOM
     itemList.appendChild(li)
-    isEmptyList()
-    itemInput.value = ''
 }
 
 function createButton(classes) {
@@ -44,16 +58,69 @@ function createIcon(classes) {
     return icon
 }
 
-function removeItem(e) {
-    if (e.target.tagName === 'I') {
-            e.target.parentElement.parentElement.remove()
+function addItemToStorage(item) {
+    const itemsFromStorage = getItemsFromStorage()
+
+    // add new item to our array 
+    itemsFromStorage.push(item)
+    // Convert to JSON string and set to local storage 
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage))
+}
+
+function getItemsFromStorage() {
+    let itemsFromStorage
+    if (localStorage.getItem('items') === null) {
+        itemsFromStorage = []
+    } else {
+        itemsFromStorage = JSON.parse(localStorage.getItem('items')) 
     }
+    return itemsFromStorage
+
+}
+
+const onClickListItem = ((e) => {
+    if (e.target.tagName === 'I') {
+        removeItem(e.target.parentElement.parentElement)
+    }
+})
+//     } else {
+//         setItemToEdit(e.target)
+//     }
+// })
+
+// function setItemToEdit(item) {
+//     isEditMode = true
+//     // turn 
+//     itemList.querySelectorAll('li').forEach(i => i.classList.remove('edit-mode'))
+
+//     item.classList.add('edit-mode')
+//     formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item'
+//     formBtn.style.backgroundColor = '#228b22'
+//     itemInput.value = item.textContent
+// }
+
+const removeItem = ((item) => {
+        // remove item from DOM 
+        item.remove()
+        // remove item from storage 
+        removeItemFromStorage(item.textContent)
+})
+
+function removeItemFromStorage(item) {
+    let itemsFromStorage = getItemsFromStorage()
+    
+    // filter out items to be removed 
+    itemsFromStorage = itemsFromStorage.filter((i) => i !== item)
+    // reset to local storage
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage))
 }
 
 function clearList() {
     while (itemList.firstChild) {
         itemList.removeChild(itemList.firstChild)
     }
+    // clearing from localStorage 
+    localStorage.clear()
 }
 
 function filterItems (e) {
@@ -84,13 +151,19 @@ function isEmptyList() {
     }
 }
 
+function init() {
+    document.addEventListener('DOMContentLoaded', displayItems)
+    document.addEventListener('DOMContentLoaded', isEmptyList)
+}
+
+
 // Event Listeners
-itemForm.addEventListener('submit', addItem)
-itemList.addEventListener('click', removeItem)
+itemForm.addEventListener('submit', onSubmitAddItem)
+itemList.addEventListener('click', onClickListItem)
 itemList.addEventListener('click', isEmptyList)
 clearBtn.addEventListener('click', clearList)
 clearBtn.addEventListener('click', isEmptyList)
 filter.addEventListener('input', filterItems)
 
 
-isEmptyList()
+init()
