@@ -155,8 +155,6 @@ function filterItems (e) {
             item.style.display = 'none'
         }
     })
-
-    console.log(text)
 }
 
 function isEmptyList() {
