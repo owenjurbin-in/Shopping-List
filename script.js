@@ -56,6 +56,23 @@ function clearList() {
     }
 }
 
+function filterItems (e) {
+    const text = e.target.value.toLowerCase()
+    const items = itemList.querySelectorAll('li')
+
+    items.forEach(item => {
+        const itemName = item.firstChild.textContent.toLowerCase()
+
+        if (itemName.indexOf(text) != -1 ) {
+            item.style.display = 'flex'
+        } else {
+            item.style.display = 'none'
+        }
+    })
+
+    console.log(text)
+}
+
 function isEmptyList() {
     const items = itemList.querySelectorAll('li')
     if (items.length === 0) {
@@ -73,6 +90,7 @@ itemList.addEventListener('click', removeItem)
 itemList.addEventListener('click', isEmptyList)
 clearBtn.addEventListener('click', clearList)
 clearBtn.addEventListener('click', isEmptyList)
+filter.addEventListener('input', filterItems)
 
 
 isEmptyList()
