@@ -23,12 +23,6 @@ const onSubmitAddItem = (e) => {
         alert('Please add an item')
         return
     }
-    // check to see if value is already submitted 
-    if (checkDuplicates(newItem) === false) {
-        alert('Item already exists')
-        itemInput.value = ''
-        return 
-    }
     
     // check if we're in edit mode 
     if(isEditMode) {
@@ -39,6 +33,12 @@ const onSubmitAddItem = (e) => {
         isEditMode = false;
         formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item'
         formBtn.style.backgroundColor = '#333'
+    } else {
+       if (checkDuplicates(newItem)) {
+        alert('Item already exists')
+        itemInput.value = ''
+        return 
+       }
     }
     // add item to the DOM
     addItemtoDOM(newItem)
@@ -48,14 +48,10 @@ const onSubmitAddItem = (e) => {
     itemInput.value = ''
 }
 
-function checkDuplicates(newItem) {
-    existingItems = getItemsFromStorage()
-    for (const item in existingItems) {
-        if (existingItems[item] === newItem) {
-            return false 
-        }
-    }
-    }
+function checkDuplicates(item) {
+    const itemsFromStorage = getItemsFromStorage()
+    return itemsFromStorage.includes(item)
+}
 
 function addItemtoDOM(item) {
     // adding the li to the DOM
